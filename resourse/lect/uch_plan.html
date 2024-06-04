@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Таблица данных</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Таблица данных</h1>
+    <label for="start_date">Начальная дата:</label>
+    <input type="date" id="start_date">
+    <label for="end_date">Конечная дата:</label>
+    <input type="date" id="end_date">
+    <button onclick="filterByDate()">Фильтр</button>
+    <button onclick="clearFilter()">Очистить фильтр</button>
+
+    <table id="data_table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Тема</th>
+                <th>Часы</th>
+                <th>Пройдена</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Динамические строки будут добавляться здесь -->
+        </tbody>
+    </table>
+    <button onclick="addRow()">Добавить строку</button>
+    <button onclick="saveTable()">Сохранить таблицу</button>
+
+    <script>
+        function addRow() {
+            const table = document.getElementById('data_table').getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+            newRow.innerHTML = `
+                <td><input type="date"></td>
+                <td><input type="text"></td>
+                <td><input type="number" min="0" step="0.1"></td>
+                <td><input type="checkbox"></td>
+                <td><button onclick="deleteRow(this)">Удалить</button></td>
+            `;
+        }
+
+        function deleteRow(button) {
+            const row = button.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+        }
+
+        function saveTable() {
+            const table = document.getElementById('data_table');
+            const data = [];
+            for (let i = 1, row; row = table.rows[i]; i++) {
+                const rowData = {
+                    date: row.cells[0].getElementsByTagName('input')[0].value,
+                    topic: row.cells[1].getElementsByTagName('input')[0].value,
+                    hours: row.cells[2].getElementsByTagName('input')[0].value,
+                    completed: row.cells[3].getElementsByTagName('input')[0].checked
+                };
+                data.push(rowData);
+            }
+
+            fetch('save_table.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(response => response.json()).then(result => {
+                alert(result.message);
+            });
+        }
+
+        function filterByDate() {
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
+            // Логика фильтрации по датам
+        }
+
+        function clearFilter() {
+            document.getElementById('start_date').value = '';
+            document.getElementById('end_date').value = '';
+            // Логика очистки фильтра
+        }
+    </script>
+</body>
+</html>
